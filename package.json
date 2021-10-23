@@ -1,0 +1,28 @@
+{
+  "name": "tslox",
+  "version": "1.0.0",
+  "description": "based on https://medium.com/geekculture/building-a-node-js-cli-with-typescript-packaged-and-distributed-via-homebrew-15ba2fadcb81",
+  "main": "./build/cli.js",
+  "bin": {
+    "hello": "./build/cli.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "package": "pkg . --output bin/hello"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^16.11.4",
+    "@types/yargs": "^17.0.4",
+    "pkg": "^5.3.3",
+    "typescript": "^4.4.4"
+  },
+  "dependencies": {
+    "yargs": "^17.2.1"
+  },
+  "pkg": {
+    "scripts": "build/**/*.js"
+  }
+}
