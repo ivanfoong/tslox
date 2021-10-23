@@ -4,11 +4,12 @@
   "description": "based on https://medium.com/geekculture/building-a-node-js-cli-with-typescript-packaged-and-distributed-via-homebrew-15ba2fadcb81",
   "main": "./build/cli.js",
   "bin": {
-    "hello": "./build/cli.js"
+    "tslox": "./build/cli.js"
   },
   "scripts": {
+    "build": "tsc",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "package": "pkg . --output bin/hello"
+    "package": "pkg . --output bin/tslox"
   },
   "keywords": [],
   "author": "",
