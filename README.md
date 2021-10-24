@@ -14,6 +14,11 @@ $ yarn dev
 $ yarn ts-node src/cli.ts sample/main.lox
 ```
 
+### Generate AST
+```sh
+$ yarn ts-node src/cli.ts generate_ast output
+```
+
 ## Package
 ```sh
 $ yarn build && yarn package
