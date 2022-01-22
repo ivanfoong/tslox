@@ -1,20 +1,38 @@
 import { writeFileSync } from 'fs'
 
 const defineType = (baseName: string, className: string, fields: string): string =>
-`  static class ${className} extends ${baseName} {
-    ${className}(${fields}) {
+`export class ${className} extends ${baseName} {
 ${fields.split(', ').map((f) => {
-  const name = f.split(' ')[1];
-  return `      this.${name} = ${name};`;
+  const [type, name] = f.split(' ');
+  return `  ${name}: ${type}`;
 }).join('\n')}
-    }
-
-${fields.split(', ').map((f) => `    final ${f};`).join('\n')}
+  constructor(${fields.split(', ').map((f) => {
+    const [type, name] = f.split(' ');
+    return `${name}: ${type}`;
+  }).join(',')}) {
+    super()
+    ${fields.split(', ').map((f) => {
+      const [_, name] = f.split(' ');
+      return `this.${name} = ${name}`;
+    }).join('\n    ')}
   }
+  accept<R>(visitor: Visitor<R>): R {
+    return visitor.visit${className}${baseName}(this)
+  }
+}
+`
+
+const defineVisitor = (baseName: string, types: Array<string>): string =>
+`export interface Visitor<R> {
+${types.map((t) => {
+  const typeName = t.split(':')[0].trim();
+  return `  visit${typeName}${baseName}(${baseName.toLowerCase()}: ${typeName}): R;`;
+}).join('\n')}
+}
 `
 
 export const defineAst = (outputDir: string, baseName: string, types: Array<string>): void => {
-  const path = `${outputDir}/${baseName}.java`;
+  const path = `${outputDir}/${baseName}.ts`;
   const classes: Array<string> = [];
   // The AST classes
   for (const type of types) {
@@ -23,13 +41,14 @@ export const defineAst = (outputDir: string, baseName: string, types: Array<stri
     classes.push(defineType(baseName, className, fields));
   }
   const content =
-`package com.craftinginterpreters.lox;
+`import { Token } from './../token'
 
-import java.utils.List;
-
-abstract class ${baseName} {
-${classes.join('\n')}
+export abstract class ${baseName} {
+  abstract accept<R>(visitor: Visitor<R>): R;
 }
+
+${defineVisitor(baseName, types)}
+${classes.join('\n')}
 `
   writeFileSync(path, content, { flag: 'w+' });
 }

@@ -5,6 +5,10 @@ import { runFile, runPrompt } from "./tslox";
 import yargs from "yargs";
 import { hideBin } from "yargs/helpers";
 import { defineAst } from "./tslox/generate_ast";
+import { AstPrinter } from "./tslox/ast_printer";
+import { Binary, Grouping, Literal, Unary } from "./tslox/generated/Expr";
+import { createToken } from "./tslox/token";
+import { TokenType } from "./tslox/token_type";
 
 type Options = {
   path?: string;
@@ -41,6 +45,25 @@ yargs(hideBin(process.argv))
         "Literal  : Object value",
         "Unary    : Token operator, Expr right",
       ]);
+    }
+  )
+  .command(
+    "test_ast_printer",
+    "Test AST Printer",
+    (yargs) => yargs.positional("outputDir", { type: "string", demandOption: false }),
+    (argv: Arguments<{ outputDir?: string }>) => {
+      const expression = new Binary(
+        new Unary(
+          createToken(TokenType.MINUS, '-', null, 1),
+          new Literal(123),
+        ),
+        createToken(TokenType.STAR, '*', null, 1),
+        new Grouping(
+          new Literal(45.67)
+        )
+      )
+      const astPrinter = new AstPrinter()
+      console.log(astPrinter.print(expression))
     }
   )
   // Enable strict mode
