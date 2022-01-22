@@ -1,4 +1,4 @@
-import { error } from ".";
+import { errorLine } from ".";
 import { createToken, Token } from "./token";
 import { TokenType } from "./token_type";
 
@@ -137,7 +137,7 @@ export class Scanner {
         } else if (this.isAlpha(c)) {
           this.identifier();
         } else {
-          error(this.line, "Unexpected character.");
+          errorLine(this.line, "Unexpected character.");
         }
         break;
       }
@@ -184,7 +184,7 @@ export class Scanner {
     }
 
     if (this.isAtEnd()) {
-      error(this.line, "Unterminated string.");
+      errorLine(this.line, "Unterminated string.");
       return;
     }
 

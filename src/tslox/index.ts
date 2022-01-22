@@ -1,7 +1,10 @@
 import { promises } from "fs";
 import { createInterface } from "readline";
+import { AstPrinter } from "./ast_printer";
+import { Parser } from "./parser";
 import { Scanner } from "./scanner";
-import { tokenToString } from "./token";
+import { Token, tokenToString } from "./token";
+import { TokenType } from "./token_type";
 const { readFile } = promises;
 
 let hadError = false;
@@ -11,15 +14,30 @@ export const report = (line: number, where: string, message: string) => {
   hadError = true;
 };
 
-export const error = (line: number, message: string) =>
+export const error = (token: Token, message: string) => {
+  if (token.type === TokenType.EOF) {
+    report(token.line, ' at end', message)
+  } else {
+    report(token.line, ` at '${token.lexeme}'`, message)
+  }
+}
+
+export const errorLine = (line: number, message: string) =>
   report(line, "", message);
 
 const run = async (source: string): Promise<void> => {
   const scanner = new Scanner(source);
   const tokens = scanner.scanTokens();
+  const parser = new Parser(tokens)
+  const expression = parser.parse()
 
-  for (const token of tokens) {
-    process.stdout.write(`${tokenToString(token)}\n`);
+  // Stop if there was a syntax error
+  if (hadError) {
+    return
+  }
+
+  if (expression !== null) {
+    console.log(new AstPrinter().print(expression))
   }
 };
 
