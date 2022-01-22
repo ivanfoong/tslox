@@ -1,13 +1,17 @@
 import { promises } from "fs";
 import { createInterface } from "readline";
 import { AstPrinter } from "./ast_printer";
+import { Interpreter } from "./interpreter";
 import { Parser } from "./parser";
+import { RuntimeError } from "./runtime_error";
 import { Scanner } from "./scanner";
 import { Token, tokenToString } from "./token";
 import { TokenType } from "./token_type";
 const { readFile } = promises;
 
+const interpreter = new Interpreter()
 let hadError = false;
+let hadRuntimeError = false
 
 export const report = (line: number, where: string, message: string) => {
   process.stdout.write(`[line ${line}] Error${where}: ${message}`);
@@ -20,6 +24,11 @@ export const error = (token: Token, message: string) => {
   } else {
     report(token.line, ` at '${token.lexeme}'`, message)
   }
+}
+
+export const runtimeError = (error: RuntimeError) => {
+  console.error(`${error.message}\n[line "${error.token.line}"]`)
+  hadRuntimeError = true
 }
 
 export const errorLine = (line: number, message: string) =>
@@ -37,7 +46,7 @@ const run = async (source: string): Promise<void> => {
   }
 
   if (expression !== null) {
-    console.log(new AstPrinter().print(expression))
+    interpreter.interpret(expression)
   }
 };
 
@@ -71,5 +80,8 @@ export const runFile = async (path: string): Promise<void> => {
   // Indicate an error in the exit code
   if (hadError) {
     process.exit(65);
+  }
+  if (hadRuntimeError) {
+    process.exit(70);
   }
 };
